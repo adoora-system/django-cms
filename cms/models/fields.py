@@ -8,11 +8,12 @@ from django.db import models
 from django.utils.text import capfirst
 
 
-
 class PlaceholderField(models.ForeignKey):
     def __init__(self, slotname, default_width=None, language_aware=False,
             actions=PlaceholderNoAction, **kwargs):
         validate_placeholder_name(slotname)
+        if kwargs.get('related_name', None) == '+':
+            raise ValueError("PlaceholderField does not support disabling of related names via '+'.")
         self.slotname = slotname
         self.default_width = default_width
         self.actions = actions()
@@ -75,6 +76,7 @@ class PlaceholderField(models.ForeignKey):
 class PageField(models.ForeignKey):
     default_form_class = PageSelectFormField
     default_model_class = Page
+
     def __init__(self, **kwargs):
         # we call ForeignKey.__init__ with the Page model as parameter...
         # a PageField can only be a ForeignKey to a Page
